@@ -23,8 +23,8 @@ func TestMemQueue(t *testing.T) {
 	// Verify received message
 	select {
 	case receivedMessage := <-receivedMessages:
-		if receivedMessage != message {
-			t.Errorf("Received message doesn't match sent message: got %s, want %s", receivedMessage, message)
+		if receivedMessage.Body != message {
+			t.Errorf("Received message doesn't match sent message: got %s, want %s", receivedMessage.Body, message)
 		}
 	default:
 		t.Error("No message received")

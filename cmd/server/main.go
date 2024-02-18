@@ -18,6 +18,7 @@ import (
 
 // Queue buffer length
 const defaultBufferLength = 1000
+const defaultMaxWorkers = 10
 
 func main() {
 	// Parse command-line arguments
@@ -26,11 +27,16 @@ func main() {
 	queueURL := flag.String("queueURL", "", "aws queue URL")
 	connectionString := flag.String("conn", "", "RabbitMQ connection string")
 	queuName := flag.String("queueName", "", "Queue name")
+	maxWorkers := flag.Int("maxWorkers", defaultMaxWorkers, "Maximum number of workers")
 	flag.Parse()
 
 	// Check if required arguments are provided
 	if *queueType == "" {
 		fmt.Println("Please provide a queue type (rabbitmq or aws)")
+		os.Exit(1)
+	}
+	if *maxWorkers < 1 {
+		fmt.Println("maxWorkers must be a positive integer")
 		os.Exit(1)
 	}
 
@@ -86,7 +92,7 @@ func main() {
 	defer q.Close()
 
 	// Initialize server
-	s := server.NewServer(ctx, q, logger.NewConsoleLogger())
+	s := server.NewServer(ctx, q, logger.NewConsoleLogger(), *maxWorkers)
 
 	// Run the server
 	if err := s.Start(); err != nil {

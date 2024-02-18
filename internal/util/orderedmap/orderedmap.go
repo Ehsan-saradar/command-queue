@@ -1,12 +1,16 @@
 package orderedmap
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
 type node struct {
-	key   string
-	value interface{}
-	prev  *node
-	next  *node
+	key       string
+	value     interface{}
+	timeStamp int64
+	prev      *node
+	next      *node
 }
 
 type OrderedMap struct {
@@ -23,20 +27,15 @@ func NewOrderedMap() OrderedMap {
 	}
 }
 
-func (om *OrderedMap) Set(key string, value interface{}) {
+func (om *OrderedMap) Set(key string, value interface{}, timestamp int64) {
+	newNode := &node{
+		key:       key,
+		value:     value,
+		timeStamp: timestamp,
+	}
+
 	om.mutex.Lock()
 	defer om.mutex.Unlock()
-
-	if n, ok := om.values[key]; ok {
-		n.value = value
-		return
-	}
-
-	newNode := &node{
-		key:   key,
-		value: value,
-	}
-
 	om.values[key] = newNode
 
 	if om.head == nil {
@@ -78,7 +77,7 @@ func (om *OrderedMap) DeleteItem(key string) {
 	}
 }
 
-func (om *OrderedMap) Keys() []string {
+func (om *OrderedMap) keys() []string {
 	om.mutex.RLock()
 	defer om.mutex.RUnlock()
 
@@ -90,14 +89,30 @@ func (om *OrderedMap) Keys() []string {
 }
 
 func (om *OrderedMap) GetAll() ([]string, []interface{}) {
-	om.mutex.RLock()
-	defer om.mutex.RUnlock()
-
-	keys := make([]string, 0, len(om.values))
-	values := make([]interface{}, 0, len(om.values))
-	for n := om.head; n != nil; n = n.next {
+	nodes := om.getAllNodes()
+	// sort nodes by timestamp
+	sort.Slice(nodes, func(i, j int) bool {
+		return nodes[i].timeStamp < nodes[j].timeStamp
+	})
+	keys := make([]string, 0, len(nodes))
+	values := make([]interface{}, 0, len(nodes))
+	for _, n := range nodes {
 		keys = append(keys, n.key)
 		values = append(values, n.value)
 	}
 	return keys, values
+}
+
+func (om *OrderedMap) getAllNodes() []node {
+	om.mutex.RLock()
+	defer om.mutex.RUnlock()
+	nodes := make([]node, 0, len(om.values))
+	for n := om.head; n != nil; n = n.next {
+		nodes = append(nodes, node{
+			key:       n.key,
+			value:     n.value,
+			timeStamp: n.timeStamp,
+		})
+	}
+	return nodes
 }

@@ -23,7 +23,7 @@ func TestServer_Start(t *testing.T) {
 	memQ := queue.NewMemQueue(5)
 
 	// Create a server with memQueue and a logger
-	s := NewServer(ctx, memQ, logger.NewConsoleLogger())
+	s := NewServer(ctx, memQ, logger.NewConsoleLogger(), 1)
 
 	// Define input commands
 	inputCommands := []string{"addItem('key1,'value1')", "deleteItem('key2')", "getAllItems()"}
@@ -53,7 +53,7 @@ func TestServer_Start(t *testing.T) {
 }
 
 func TestProcessCommand(t *testing.T) {
-	server := NewServer(context.TODO(), nil, logger.NewConsoleLogger())
+	server := NewServer(context.TODO(), nil, logger.NewConsoleLogger(), 1)
 
 	// delete test files if they exist
 	os.Remove("key2")
@@ -61,13 +61,28 @@ func TestProcessCommand(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		message string
+		message queue.Message
 	}{
-		{name: "AddItem1", message: types.NewAddCommand("key1", "value1").String()},
-		{name: "AddItem2", message: types.NewAddCommand("key2", "value2").String()},
-		{name: "DeleteItem1", message: types.NewDeleteCommand("key1").String()},
-		{name: "GetItem1", message: types.NewGetCommand("key2").String()},
-		{name: "GetAllItems1", message: types.NewGetAllCommand().String()},
+		{name: "AddItem1", message: queue.Message{
+			Body:      types.NewAddCommand("key1", "value1").String(),
+			TimeStamp: 1,
+		}},
+		{name: "AddItem2", message: queue.Message{
+			Body:      types.NewAddCommand("key2", "value2").String(),
+			TimeStamp: 2,
+		}},
+		{name: "DeleteItem1", message: queue.Message{
+			Body:      types.NewDeleteCommand("key1").String(),
+			TimeStamp: 3,
+		}},
+		{name: "GetItem1", message: queue.Message{
+			Body:      types.NewGetCommand("key2").String(),
+			TimeStamp: 4,
+		}},
+		{name: "GetAllItems1", message: queue.Message{
+			Body:      types.NewGetAllCommand().String(),
+			TimeStamp: 5,
+		}},
 	}
 
 	for _, tt := range tests {

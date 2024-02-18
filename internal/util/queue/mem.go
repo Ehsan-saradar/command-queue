@@ -2,21 +2,21 @@ package queue
 
 // memQueue implements the Queue interface for in-memory queue and is used for testing.
 type memQueue struct {
-	messages chan string
+	messages chan Message
 }
 
 func NewMemQueue(bufferLength int) Queue {
 	return &memQueue{
-		messages: make(chan string, bufferLength),
+		messages: make(chan Message, bufferLength),
 	}
 }
 
 func (q *memQueue) SendMessage(message string) error {
-	q.messages <- message
+	q.messages <- Message{Body: message}
 	return nil
 }
 
-func (q *memQueue) ReceiveMessage() (<-chan string, error) {
+func (q *memQueue) ReceiveMessage() (<-chan Message, error) {
 	return q.messages, nil
 }
 

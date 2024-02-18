@@ -49,7 +49,7 @@ func NewRabbitMQQueue(ctx context.Context, url string, queueName string, bufferL
 }
 
 // ReceiveMessage receives a channel of messages from the RabbitMQ queue.
-func (q *RabbitMQQueue) ReceiveMessage() (<-chan string, error) {
+func (q *RabbitMQQueue) ReceiveMessage() (<-chan Message, error) {
 	msgs, err := q.channel.Consume(
 		q.queueName, // queue
 		"",          // consumer
@@ -63,7 +63,7 @@ func (q *RabbitMQQueue) ReceiveMessage() (<-chan string, error) {
 		return nil, err
 	}
 
-	msgChan := make(chan string, q.bufferLength)
+	msgChan := make(chan Message, q.bufferLength)
 	go func() {
 		defer close(msgChan)
 
@@ -75,7 +75,7 @@ func (q *RabbitMQQueue) ReceiveMessage() (<-chan string, error) {
 				if !ok {
 					return // Exit goroutine if message channel is closed
 				}
-				msgChan <- string(msg.Body) // Send message to channel
+				msgChan <- Message{Body: string(msg.Body), TimeStamp: msg.Timestamp.UTC().UnixNano()}
 			}
 		}
 	}()

@@ -9,12 +9,12 @@ func TestOrderedMap(t *testing.T) {
 	om := NewOrderedMap()
 
 	// Test Set and Get
-	om.Set("b", 2)
-	om.Set("a", 1)
-	om.Set("c", 3)
+	om.Set("b", 2, 0)
+	om.Set("a", 1, 1)
+	om.Set("c", 3, 2)
 
 	expectedKeys := []string{"b", "a", "c"}
-	if keys := om.Keys(); !reflect.DeepEqual(keys, expectedKeys) {
+	if keys := om.keys(); !reflect.DeepEqual(keys, expectedKeys) {
 		t.Errorf("Keys mismatch. Expected: %v, Got: %v", expectedKeys, keys)
 	}
 
@@ -27,7 +27,7 @@ func TestOrderedMap(t *testing.T) {
 	om.DeleteItem("a")
 
 	expectedKeysAfterDelete := []string{"b", "c"}
-	if keys := om.Keys(); !reflect.DeepEqual(keys, expectedKeysAfterDelete) {
+	if keys := om.keys(); !reflect.DeepEqual(keys, expectedKeysAfterDelete) {
 		t.Errorf("Keys mismatch after DeleteItem. Expected: %v, Got: %v", expectedKeysAfterDelete, keys)
 	}
 
@@ -38,7 +38,7 @@ func TestOrderedMap(t *testing.T) {
 	}
 
 	// Test Set to update existing value
-	om.Set("b", 42)
+	om.Set("b", 42, 3)
 	if value, ok := om.Get("b"); !ok || value != 42 {
 		t.Errorf("Failed to update value for key 'b'. Expected: 42, Got: %v", value)
 	}

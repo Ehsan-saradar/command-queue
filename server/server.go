@@ -19,16 +19,18 @@ type Server struct {
 	orderedMap orderedmap.OrderedMap
 	fileMutex  sync.Mutex
 	log        logger.Logger
+	semaphore  chan interface{}
 }
 
 // NewServer creates a new instance of Server.
-func NewServer(ctx context.Context, q queue.Queue, log logger.Logger) *Server {
+func NewServer(ctx context.Context, q queue.Queue, log logger.Logger, maxWorkers int) *Server {
 	return &Server{
 		ctx:        ctx,
 		queue:      q,
 		orderedMap: orderedmap.NewOrderedMap(),
 		fileMutex:  sync.Mutex{},
 		log:        log,
+		semaphore:  make(chan interface{}, maxWorkers),
 	}
 }
 
@@ -47,7 +49,17 @@ func (s *Server) Start() error {
 			if !ok {
 				return nil
 			}
-			s.processCommand(message)
+			// Acquire a semaphore slot
+			s.semaphore <- struct{}{}
+
+			// Launch a new goroutine to process the message concurrently
+			go func(msg queue.Message) {
+				defer func() {
+					// Release the semaphore slot when the goroutine completes
+					<-s.semaphore
+				}()
+				s.processCommand(msg)
+			}(message)
 		}
 	}
 }
@@ -59,15 +71,15 @@ func (s *Server) Stop() error {
 	return nil
 }
 
-func (s *Server) processCommand(message string) {
-	command, err := types.ParseCommand(message)
+func (s *Server) processCommand(message queue.Message) {
+	command, err := types.ParseCommand(message.Body)
 	if err != nil {
 		s.log.Logf("Error parsing command: %v\n", err)
 		return
 	}
 	switch command.Type {
 	case types.AddItem:
-		s.orderedMap.Set(command.Key(), command.Value())
+		s.orderedMap.Set(command.Key(), command.Value(), message.TimeStamp)
 	case types.DeleteItem:
 		s.orderedMap.DeleteItem(command.Key())
 	case types.GetItem:

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"sync/atomic"
 
 	"command-queue/internal/types"
 	"command-queue/internal/util/logger"
@@ -20,6 +21,7 @@ type Server struct {
 	fileMutex  sync.Mutex
 	log        logger.Logger
 	semaphore  chan interface{}
+	cnt        atomic.Uint64
 }
 
 // NewServer creates a new instance of Server.
@@ -31,6 +33,7 @@ func NewServer(ctx context.Context, q queue.Queue, log logger.Logger, maxWorkers
 		fileMutex:  sync.Mutex{},
 		log:        log,
 		semaphore:  make(chan interface{}, maxWorkers),
+		cnt:        atomic.Uint64{},
 	}
 }
 
@@ -98,9 +101,9 @@ func (s *Server) processCommand(message queue.Message) {
 }
 
 func (s *Server) writeToFile(filename, content string) {
-	s.fileMutex.Lock()
-	defer s.fileMutex.Unlock()
-
+	//read the counter value and increment it
+	index := s.cnt.Add(1)
+	filename = fmt.Sprintf("%s_%d", filename, index)
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		s.log.Logf("Error opening file: %v\n", err)

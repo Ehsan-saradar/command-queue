@@ -74,7 +74,7 @@ func (s *Server) Stop() error {
 func (s *Server) processCommand(message queue.Message) {
 	command, err := types.ParseCommand(message.Body)
 	if err != nil {
-		s.log.Logf("Error parsing command: %v\n", err)
+		s.log.Printf("Error parsing command: %v\n", err)
 		return
 	}
 	switch command.Type {
@@ -103,12 +103,12 @@ func (s *Server) writeToFile(filename, content string) {
 	filename = fmt.Sprintf("%s_%d", filename, index)
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
-		s.log.Logf("Error opening file: %v\n", err)
+		s.log.Printf("Error opening file: %v\n", err)
 		return
 	}
 	defer file.Close()
 
 	if _, err := file.WriteString(content); err != nil {
-		s.log.Logf("Error writing to file: %v\n", err)
+		s.log.Printf("Error writing to file: %v\n", err)
 	}
 }

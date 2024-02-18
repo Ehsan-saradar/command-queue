@@ -1,0 +1,28 @@
+name: Unit Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [ '1.21' ]
+        os: [ ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      VM_DEBUG: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up go
+        uses: actions/setup-go@v4.1.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Tests
+        run: make test-cover

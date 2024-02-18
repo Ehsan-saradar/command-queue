@@ -54,7 +54,7 @@ func (s *Server) Start(ctx context.Context) error {
 			s.semaphore <- struct{}{}
 
 			// Launch a new goroutine to process the message concurrently
-			go func(msg queue.Message) {
+			go func(msg string) {
 				defer func() {
 					// Release the semaphore slot when the goroutine completes
 					<-s.semaphore
@@ -71,15 +71,15 @@ func (s *Server) Stop() error {
 	return nil
 }
 
-func (s *Server) processCommand(message queue.Message) {
-	command, err := types.ParseCommand(message.Body)
+func (s *Server) processCommand(message string) {
+	command, err := types.ParseCommand(message)
 	if err != nil {
 		s.log.Printf("Error parsing command: %v\n", err)
 		return
 	}
 	switch command.Type {
 	case types.AddItem:
-		s.orderedMap.Set(command.Key(), command.Value(), message.TimeStamp)
+		s.orderedMap.Set(command.Key(), command.Value())
 	case types.DeleteItem:
 		s.orderedMap.DeleteItem(command.Key())
 	case types.GetItem:

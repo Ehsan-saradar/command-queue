@@ -68,3 +68,4 @@ Additional options:
 -   The application assumes that the external queue is configured and accessible.
 -   The ordered map data structure is implemented in-memory without using external packages.
 -   Error handling for network failures or invalid configurations is not extensively covered in this version of the code.
+-   Due to parallel processing of items from the external queue, it is possible that the order of items in the external queue does not match the order in which items are processed by the server. Therefore, the order of items in the external queue may not correspond to the order in which they are processed and stored in the in-memory queue.

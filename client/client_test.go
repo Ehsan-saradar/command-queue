@@ -39,15 +39,15 @@ func TestClient_Start(t *testing.T) {
 	receivedMessages, _ := memQ.ReceiveMessage()
 	for _, expectedMsg := range inputCommands {
 		receivedMsg := <-receivedMessages
-		if receivedMsg.Body != expectedMsg {
-			t.Errorf("Expected message %s, but got %s", expectedMsg, receivedMsg.Body)
+		if receivedMsg != expectedMsg {
+			t.Errorf("Expected message %s, but got %s", expectedMsg, receivedMsg)
 		}
 	}
 
 	// Check if there are no more messages in the queue
 	select {
 	case receivedMsg := <-receivedMessages:
-		t.Errorf("Unexpected message in the queue: %s", receivedMsg.Body)
+		t.Errorf("Unexpected message in the queue: %s", receivedMsg)
 	default:
 		// No message in the channel, as expected
 	}

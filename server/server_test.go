@@ -53,7 +53,6 @@ func TestServer_Start(t *testing.T) {
 }
 
 func TestProcessCommand(t *testing.T) {
-
 	server := NewServer(context.TODO(), nil, logger.NewConsoleLogger())
 
 	// delete test files if they exist

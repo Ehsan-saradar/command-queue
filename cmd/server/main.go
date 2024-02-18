@@ -17,8 +17,10 @@ import (
 )
 
 // Queue buffer length
-const defaultBufferLength = 1000
-const defaultMaxWorkers = 10
+const (
+	defaultBufferLength = 1000
+	defaultMaxWorkers   = 10
+)
 
 func main() {
 	// Parse command-line arguments
@@ -92,10 +94,10 @@ func main() {
 	defer q.Close()
 
 	// Initialize server
-	s := server.NewServer(ctx, q, logger.NewConsoleLogger(), *maxWorkers)
+	s := server.NewServer(q, logger.NewConsoleLogger(), *maxWorkers)
 
 	// Run the server
-	if err := s.Start(); err != nil {
+	if err := s.Start(ctx); err != nil {
 		fmt.Printf("Error running server: %v\n", err)
 		os.Exit(1)
 	}

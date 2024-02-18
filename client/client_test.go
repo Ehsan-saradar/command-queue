@@ -27,10 +27,10 @@ func TestClient_Start(t *testing.T) {
 	ctx := context.Background()
 
 	// Create a client with memQueue and input buffer
-	c := NewClient(ctx, inputBuffer, memQ)
+	c := NewClient(inputBuffer, memQ)
 
 	// Start the client
-	err := c.Start()
+	err := c.Start(ctx)
 	assert.Nilf(t, err, "Start returned an error: %v", err)
 	err = c.Stop()
 	assert.Nilf(t, err, "Stop returned an error: %v", err)

@@ -85,10 +85,10 @@ func main() {
 		inputSource = os.Stdin
 	}
 
-	c := client.NewClient(ctx, inputSource, q)
+	c := client.NewClient(inputSource, q)
 
 	// Run the client
-	if err := c.Start(); err != nil {
+	if err := c.Start(ctx); err != nil {
 		fmt.Printf("Error running client: %v\n", err)
 		os.Exit(1)
 	}

@@ -23,7 +23,7 @@ func TestServer_Start(t *testing.T) {
 	memQ := queue.NewMemQueue(5)
 
 	// Create a server with memQueue and a logger
-	s := NewServer(ctx, memQ, logger.NewConsoleLogger(), 1)
+	s := NewServer(memQ, logger.NewConsoleLogger(), 1)
 
 	// Define input commands
 	inputCommands := []string{"addItem('key1,'value1')", "deleteItem('key2')", "getAllItems()"}
@@ -36,7 +36,7 @@ func TestServer_Start(t *testing.T) {
 
 	// Start the server in a separate goroutine
 	go func() {
-		err := s.Start()
+		err := s.Start(ctx)
 		assert.Nilf(t, err, "Start returned an error: %v", err)
 	}()
 
@@ -53,11 +53,11 @@ func TestServer_Start(t *testing.T) {
 }
 
 func TestProcessCommand(t *testing.T) {
-	server := NewServer(context.TODO(), nil, logger.NewConsoleLogger(), 1)
+	server := NewServer(nil, logger.NewConsoleLogger(), 1)
 
 	// delete test files if they exist
-	os.Remove("key2")
-	os.Remove("allItems")
+	os.Remove("key2_1")
+	os.Remove("allItems_2")
 
 	tests := []struct {
 		name    string
@@ -94,12 +94,12 @@ func TestProcessCommand(t *testing.T) {
 	assert.Equal(t, []string{"key2"}, keys)
 	assert.Equal(t, []interface{}{"value2"}, values)
 
-	bt, err := os.ReadFile("key2")
+	bt, err := os.ReadFile("key2_1")
 	assert.Nilf(t, err, "Error reading file: %v", err)
 	assert.Equal(t, "key2 : value2\n", string(bt))
 	os.Remove("key2")
 
-	bt, err = os.ReadFile("allItems")
+	bt, err = os.ReadFile("allItems_2")
 	assert.Nilf(t, err, "Error reading file: %v", err)
 	assert.Equal(t, "key2 : value2\n", string(bt))
 	os.Remove("allItems")

@@ -11,28 +11,23 @@ import (
 )
 
 type Client struct {
-	ctx         context.Context
 	inputSource io.Reader
 	queue       queue.Queue
 }
 
-func NewClient(ctx context.Context, inputSource io.Reader, queue queue.Queue) *Client {
+func NewClient(inputSource io.Reader, queue queue.Queue) *Client {
 	return &Client{
-		ctx:         ctx,
 		inputSource: inputSource,
 		queue:       queue,
 	}
 }
 
-func (c *Client) Start() error {
-	// Use the context's Done channel to check for cancellation signals.
-	done := c.ctx.Done()
-
+func (c *Client) Start(ctx context.Context) error {
 	// Read commands from the input source and send them to the server.
 	scanner := bufio.NewScanner(c.inputSource)
 	for scanner.Scan() {
 		select {
-		case <-done:
+		case <-ctx.Done():
 			// Context cancelled. Stop processing.
 			return nil
 		default:

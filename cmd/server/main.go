@@ -76,7 +76,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		q, err = queue.NewSQSQueue(*region, *queueURL)
+		q, err = queue.NewSQSQueue(*region, *queueURL, defaultBufferLength)
 		if err != nil {
 			fmt.Printf("Error creating SQS queue: %v\n", err)
 			os.Exit(1)

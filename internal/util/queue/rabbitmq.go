@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"fmt"
+
 	"github.com/streadway/amqp"
 )
 

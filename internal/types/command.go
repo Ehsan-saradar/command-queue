@@ -1,7 +1,6 @@
 package types
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -26,7 +25,7 @@ func ParseCommand(message string) (Command, error) {
 	command.Type = command.GetCommand(message)
 	command.args = command.GetArgs(message)
 	if !command.isValid() {
-		return Command{}, errors.New(fmt.Sprintf("Invalid message: %s\n", message))
+		return Command{}, fmt.Errorf("Invalid message: %s\n", message)
 	}
 	return command, nil
 }
@@ -37,24 +36,28 @@ func NewAddCommand(key, value string) Command {
 		args: []string{key, value},
 	}
 }
+
 func NewDeleteCommand(key string) Command {
 	return Command{
 		Type: DeleteItem,
 		args: []string{key},
 	}
 }
+
 func NewGetCommand(key string) Command {
 	return Command{
 		Type: GetItem,
 		args: []string{key},
 	}
 }
+
 func NewGetItemCommand(key string) Command {
 	return Command{
 		Type: GetItem,
 		args: []string{key},
 	}
 }
+
 func NewGetAllCommand() Command {
 	return Command{
 		Type: GetAllItems,
@@ -116,6 +119,7 @@ func (c Command) isValid() bool {
 func (c Command) Key() string {
 	return c.args[0]
 }
+
 func (c Command) Value() string {
 	if len(c.args) < 2 {
 		return ""

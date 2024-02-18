@@ -15,7 +15,8 @@ type SQSQueue struct {
 // NewSQSQueue creates a new instance of SQSQueue.
 func NewSQSQueue(region, queueURL string) (*SQSQueue, error) {
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(region)},
+		Region: aws.String(region),
+	},
 	)
 	if err != nil {
 		return nil, err

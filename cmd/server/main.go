@@ -1,14 +1,15 @@
 package main
 
 import (
-	"command-queue/internal/util/logger"
-	"command-queue/server"
 	"context"
 	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"command-queue/internal/util/logger"
+	"command-queue/server"
 
 	"command-queue/internal/util/queue"
 	"github.com/aws/aws-sdk-go/aws"
@@ -76,8 +77,8 @@ func main() {
 		}
 
 		_ = awsq
-		//svc := sqs.New(sess)
-		//q = queue.NewSQSQueue(svc, *queueURL)
+		// svc := sqs.New(sess)
+		// q = queue.NewSQSQueue(svc, *queueURL)
 	default:
 		fmt.Println("Invalid queue type. Supported types: rabbitmq, aws")
 		os.Exit(1)

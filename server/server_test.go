@@ -2,11 +2,13 @@ package server
 
 import (
 	"bytes"
-	"command-queue/internal/types"
 	"context"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"command-queue/internal/types"
+
+	"github.com/stretchr/testify/assert"
 
 	"command-queue/internal/util/logger"
 	"command-queue/internal/util/queue"
@@ -43,14 +45,16 @@ func TestServer_Start(t *testing.T) {
 		err := memQ.SendMessage(cmd)
 		assert.Nilf(t, err, "SendMessage returned an error: %v", err)
 	}
-	s.Stop()
+	err := s.Stop()
+	assert.Nilf(t, err, "Stop returned an error: %v", err)
 
 	// Simulate cancellation of the context to stop the server
 	cancel()
 }
 
 func TestProcessCommand(t *testing.T) {
-	server := NewServer(nil, nil, logger.NewConsoleLogger())
+
+	server := NewServer(context.TODO(), nil, logger.NewConsoleLogger())
 
 	// delete test files if they exist
 	os.Remove("key2")

@@ -63,8 +63,8 @@ func main() {
 		}
 
 		_ = awsq
-		//svc := sqs.New(sess)
-		//q = queue.NewSQSQueue(svc, *queueURL)
+		// svc := sqs.New(sess)
+		// q = queue.NewSQSQueue(svc, *queueURL)
 	default:
 		fmt.Println("Invalid queue type. Supported types: rabbitmq, aws")
 		os.Exit(1)

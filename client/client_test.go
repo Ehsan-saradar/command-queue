@@ -3,8 +3,9 @@ package client
 import (
 	"bytes"
 	"context"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"command-queue/internal/util/queue"
 )

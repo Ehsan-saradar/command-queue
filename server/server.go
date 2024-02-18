@@ -1,14 +1,15 @@
 package server
 
 import (
-	"command-queue/internal/types"
-	"command-queue/internal/util/logger"
-	"command-queue/internal/util/orderedmap"
-	"command-queue/internal/util/queue"
 	"context"
 	"fmt"
 	"os"
 	"sync"
+
+	"command-queue/internal/types"
+	"command-queue/internal/util/logger"
+	"command-queue/internal/util/orderedmap"
+	"command-queue/internal/util/queue"
 )
 
 // Server implements the Server interface.
@@ -49,7 +50,6 @@ func (s *Server) Start() error {
 			s.processCommand(message)
 		}
 	}
-	return nil
 }
 
 // Stop stops the server, preventing it from reading messages and processing commands.
@@ -89,7 +89,7 @@ func (s *Server) writeToFile(filename, content string) {
 	s.fileMutex.Lock()
 	defer s.fileMutex.Unlock()
 
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		s.log.Logf("Error opening file: %v\n", err)
 		return

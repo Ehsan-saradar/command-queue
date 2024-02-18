@@ -2,11 +2,12 @@ package client
 
 import (
 	"bufio"
-	"command-queue/internal/types"
-	"command-queue/internal/util/queue"
 	"context"
 	"fmt"
 	"io"
+
+	"command-queue/internal/types"
+	"command-queue/internal/util/queue"
 )
 
 type Client struct {
@@ -51,7 +52,6 @@ func (c *Client) Start() error {
 	}
 
 	if err := scanner.Err(); err != nil {
-
 		return fmt.Errorf("error reading input: %v", err)
 	}
 

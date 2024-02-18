@@ -22,8 +22,8 @@ type Command struct {
 
 func ParseCommand(message string) (Command, error) {
 	var command Command
-	command.Type = command.GetCommand(message)
-	command.args = command.GetArgs(message)
+	command.Type = getCommand(message)
+	command.args = getArgs(message)
 	if !command.isValid() {
 		return Command{}, fmt.Errorf("Invalid message: %s\n", message)
 	}
@@ -65,7 +65,7 @@ func NewGetAllCommand() Command {
 	}
 }
 
-func (c Command) GetCommand(message string) CommandType {
+func getCommand(message string) CommandType {
 	message = strings.TrimSpace(strings.Split(message, "(")[0])
 	switch message {
 	case "addItem":
@@ -81,7 +81,7 @@ func (c Command) GetCommand(message string) CommandType {
 	}
 }
 
-func (c Command) GetArgs(message string) []string {
+func getArgs(message string) []string {
 	parts := strings.Split(message, "(")
 	if len(parts) < 2 {
 		return nil

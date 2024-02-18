@@ -1,95 +1,70 @@
+
 # Command Queue Application
 
-This is a simple client-server application written in Golang that allows clients to send commands to a server via an external message queue. The server reads messages from the queue and processes commands accordingly.
+This is a Golang implementation of a Client-Server application that utilizes an external queue to manage and execute commands. The server reads commands from the queue and executes them, while the client sends commands to the queue. This application is designed to be robust, scalable, and easy to read and maintain.
 
-## Server
+## Overview
 
-### Running the Server
+This application consists of a server component (`cmd/server/server.go`) and a client component (`cmd/client/client.go`). The server implements an ordered map data structure in memory and executes commands received from an external queue in parallel. The client accepts commands from the standard input or a file and sends them to the external queue.
 
-To run the server, follow these steps:
+## Specifications
 
-1. Navigate to the `cmd/server` directory:
-    ```bash
-    cd cmd/server
-    ```
+The application implements the following features:
 
-2. Build the server executable:
-    ```bash
-    go build
-    ```
+- **Server**:
+  - Implements an ordered map data structure in memory.
+  - Reads messages (commands) from an external queue.
+  - Supports adding, removing, and retrieving items from the data structure.
+  - Executes commands in parallel as much as possible.
 
-3. Run the server binary:
-    ```bash
-    ./server -queue <queue_type> [additional_flags]
-    ```
+- **Client**:
+  - Can be configured from the command line or a file.
+  - Sends messages (commands) to the external queue.
+  - Supports running multiple clients in parallel.
 
-   Replace `<queue_type>` with either `rabbitmq` or `aws` depending on the type of message queue you want to use. You may also need to provide additional flags based on the type of queue selected. See below for details on the available flags.
+- **External Queue**:
+  - Can be Amazon Simple Queue Service (SQS) or RabbitMQ.
 
-### Server Flags
+- **Client and Server Messages**:
+  - Messages represent commands that the server should execute.
+  - Commands include addItem, deleteItem, getItem, and getAllItems.
 
-- `-queue`: Type of queue (required)
-    - Options: `rabbitmq`, `aws`
+## Usage
 
-- Additional flags based on the queue type:
-    - RabbitMQ:
-        - `-conn`: RabbitMQ connection string (required)
-        - `-queueName`: Queue name (required)
+### Server
 
-    - AWS:
-        - `-region`: AWS region (required)
-        - `-queueURL`: AWS SQS queue URL (required)
+To run the server, execute the following command:
 
-## Client
+```bash  
+go run cmd/server/server.go -queue <queue_type> [additional_options]
+```  
 
-### Running the Client
+Supported `queue_type` values: `rabbitmq` or `aws`.
 
-To run the client, follow these steps:
+Additional options:
+- `region`: AWS region (required for aws).
+- `queueURL`: AWS SQS queue URL (required for aws).
+- `connectionString`: RabbitMQ connection string (required for rabbitmq).
+- `queueName`: Queue name (required for rabbitmq).
 
-1. Navigate to the `cmd/client` directory:
-    ```bash
-    cd cmd/client
-    ```
+### Client
+To run the client, execute the following command:
+```bash  
+go run cmd/client/client.go -queue <queue_type> [additional_options]
+```  
 
-2. Build the client executable:
-    ```bash
-    go build
-    ```
+Supported `queue_type` values: `rabbitmq` or `aws`.
 
-3. Run the client binary:
-    ```bash
-    ./client -queue <queue_type> [additional_flags]
-    ```
+Additional options:
+- `region`: AWS region (required for aws).
+- `queueURL`: AWS SQS queue URL (required for aws).
+- `file`: Input file path (optional).
 
-   Replace `<queue_type>` with either `rabbitmq` or `aws` depending on the type of message queue you want to use. You may also need to provide additional flags based on the type of queue selected. See below for details on the available flags.
+### Dependencies
+- AWS SDK for Go (for aws queue type)
+- RabbitMQ Go Client (for rabbitmq queue type)
 
-### Client Flags
-
-- `-queue`: Type of queue (required)
-    - Options: `rabbitmq`, `aws`
-
-- Additional flags based on the queue type:
-    - RabbitMQ:
-        - None
-
-    - AWS:
-        - `-region`: AWS region (required)
-        - `-queueURL`: AWS SQS queue URL (required)
-
-- Additional flags for both types:
-    - `-file`: Input file path (optional)
-        - If provided, the client will read commands from the specified file.
-        - If not provided, the client will read commands from standard input.
-
-## Example Usage
-
-### Running Server with RabbitMQ
-
-```bash
-./server -queue rabbitmq -conn <rabbitmq_connection_string> -queueName <queue_name>
-
-```
-
-### Running Server with AWS SQS
-```bash
-./server -queue aws -region <aws_region> -queueURL <sqs_queue_url>
-```
+## Assumptions
+-   The application assumes that the external queue is configured and accessible.
+-   The ordered map data structure is implemented in-memory without using external packages.
+-   Error handling for network failures or invalid configurations is not extensively covered in this version of the code.

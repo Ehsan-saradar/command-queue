@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+
 	"github.com/streadway/amqp"
 )
 
@@ -64,7 +65,6 @@ func (q *RabbitMQQueue) ReceiveMessage() (<-chan string, error) {
 	msgChan := make(chan string, q.bufferLength)
 	go func() {
 		defer close(msgChan)
-
 		for {
 			select {
 			case <-q.ctx.Done():
@@ -79,12 +79,6 @@ func (q *RabbitMQQueue) ReceiveMessage() (<-chan string, error) {
 	}()
 
 	return msgChan, nil
-}
-
-// DeleteMessage is not implemented for RabbitMQQueue.
-func (q *RabbitMQQueue) DeleteMessage(message string) error {
-	// Not implemented for RabbitMQQueue.
-	return nil
 }
 
 // SendMessage sends a message to the RabbitMQ queue.

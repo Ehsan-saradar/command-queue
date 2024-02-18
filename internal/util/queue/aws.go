@@ -8,8 +8,10 @@ import (
 
 // SQSQueue implements the Queue interface for AWS SQS.
 type SQSQueue struct {
-	svc      *sqs.SQS
-	queueURL string
+	svc              *sqs.SQS
+	queueURL         string
+	stopReceiving    chan struct{} // Channel to signal stop receiving messages
+	receivingStopped chan struct{} // Channel to signal that receiving has stopped
 }
 
 // NewSQSQueue creates a new instance of SQSQueue.
@@ -39,29 +41,41 @@ func (q *SQSQueue) SendMessage(message string) error {
 	return err
 }
 
-// ReceiveMessage receives a message from the AWS SQS queue.
-func (q *SQSQueue) ReceiveMessage() (string, error) {
-	result, err := q.svc.ReceiveMessage(&sqs.ReceiveMessageInput{
-		QueueUrl:            aws.String(q.queueURL),
-		MaxNumberOfMessages: aws.Int64(1),
-		WaitTimeSeconds:     aws.Int64(1),
-	})
-	if err != nil {
-		return "", err
-	}
+func (c *SQSQueue) ReceiveMessage() (<-chan string, error) {
+	messageChannel := make(chan string)
+	go func() {
+		for {
+			select {
+			case <-c.stopReceiving:
+				close(messageChannel)
+				c.receivingStopped <- struct{}{}
+				return
+			default:
+				receiveParams := &sqs.ReceiveMessageInput{
+					QueueUrl:            aws.String(c.queueURL),
+					MaxNumberOfMessages: aws.Int64(1),
+					WaitTimeSeconds:     aws.Int64(20), // Adjust as needed
+				}
 
-	if len(result.Messages) == 0 {
-		return "", nil
-	}
+				receiveResp, err := c.svc.ReceiveMessage(receiveParams)
+				if err != nil {
+					// Handle error
+					continue
+				}
 
-	return *result.Messages[0].Body, nil
+				for _, msg := range receiveResp.Messages {
+					messageChannel <- *msg.Body
+				}
+			}
+		}
+	}()
+
+	return messageChannel, nil
 }
 
-// DeleteMessage deletes a message from the AWS SQS queue.
-func (q *SQSQueue) DeleteMessage(receiptHandle string) error {
-	_, err := q.svc.DeleteMessage(&sqs.DeleteMessageInput{
-		QueueUrl:      aws.String(q.queueURL),
-		ReceiptHandle: aws.String(receiptHandle),
-	})
-	return err
+func (c *SQSQueue) Close() error {
+	close(c.stopReceiving)
+	// make sure receiving has stopped before closing the connection
+	<-c.receivingStopped
+	return nil
 }

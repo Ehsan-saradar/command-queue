@@ -12,8 +12,6 @@ import (
 	"command-queue/server"
 
 	"command-queue/internal/util/queue"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 // Queue buffer length
@@ -78,15 +76,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		awsq, err := session.NewSession(&aws.Config{Region: aws.String(*region)})
+		q, err = queue.NewSQSQueue(*region, *queueURL)
 		if err != nil {
-			fmt.Printf("Error creating AWS session: %v\n", err)
+			fmt.Printf("Error creating SQS queue: %v\n", err)
 			os.Exit(1)
 		}
-
-		_ = awsq
-		// svc := sqs.New(sess)
-		// q = queue.NewSQSQueue(svc, *queueURL)
 	default:
 		fmt.Println("Invalid queue type. Supported types: rabbitmq, aws")
 		os.Exit(1)

@@ -5,8 +5,7 @@ import (
 )
 
 // ConsoleLogger implements the Logger interface for logging to the console.
-type ConsoleLogger struct {
-}
+type ConsoleLogger struct{}
 
 // NewConsoleLogger creates a new instance of ConsoleLogger.
 func NewConsoleLogger() Logger {

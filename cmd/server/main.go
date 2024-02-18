@@ -67,7 +67,7 @@ func main() {
 			fmt.Println("Please provide queue name")
 			os.Exit(1)
 		}
-		q, err = queue.NewRabbitMQQueue(ctx, *connectionString, *queueType, defaultBufferLength)
+		q, err = queue.NewRabbitMQQueue(ctx, *connectionString, *queuName, defaultBufferLength)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -2,8 +2,6 @@ package queue
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/streadway/amqp"
 )
 
@@ -103,7 +101,6 @@ func (q *RabbitMQQueue) SendMessage(message string) error {
 }
 
 func (q *RabbitMQQueue) Close() error {
-	fmt.Println("Try to close channel")
 	err := q.channel.Close()
 	if err != nil {
 		return err

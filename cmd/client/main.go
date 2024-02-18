@@ -14,11 +14,17 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
+const (
+	defaultBufferLength = 1000
+)
+
 func main() {
 	// Parse command-line arguments
 	queueType := flag.String("queue", "", "Type of queue (rabbitmq or aws)")
 	region := flag.String("region", "", "AWS region (required for aws)")
 	queueURL := flag.String("queueURL", "", "aws queue URL")
+	connectionString := flag.String("conn", "", "RabbitMQ connection string")
+	queuName := flag.String("queueName", "", "Queue name")
 	filePath := flag.String("file", "", "Input file path")
 	flag.Parse()
 
@@ -45,7 +51,15 @@ func main() {
 	var err error
 	switch *queueType {
 	case "rabbitmq":
-		q, err = queue.NewRabbitMQQueue(ctx, "amqp://user1:p1@95.217.108.62:5672/", "queue_name", 1000)
+		if *connectionString == "" {
+			fmt.Println("Please provide RabbitMQ connection string")
+			os.Exit(1)
+		}
+		if *queuName == "" {
+			fmt.Println("Please provide queue name")
+			os.Exit(1)
+		}
+		q, err = queue.NewRabbitMQQueue(ctx, *connectionString, *queuName, defaultBufferLength)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -58,6 +58,7 @@ Supported `queue_type` values: `rabbitmq` or `aws`.
 Additional options:
 - `region`: AWS region (required for aws).
 - `queueURL`: AWS SQS queue URL (required for aws).
+- `connectionString`: RabbitMQ connection string (required for rabbitmq).
 - `file`: Input file path (optional).
 
 ### Dependencies
